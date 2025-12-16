@@ -173,30 +173,30 @@ class GameEngine {
         if (!GameState.battle.active) return;
         
         // Update timers
-        GameState.battle.tickCount += deltaTime * GameState.battle.speed;
-        GameState.hero.stateTimer += deltaTime;
-        GameState.enemy.stateTimer += deltaTime;
+        GameState.battle.tickCount += this.deltaTime * GameState.battle.speed;
+        GameState.hero.stateTimer += this.deltaTime;
+        GameState.enemy.stateTimer += this.deltaTime;
         
         // Update idle time
         GameState.idle.lastActiveTime = Date.now();
         
         // Combat loop
-        this.updateCombat(deltaTime);
+        this.updateCombat(this.deltaTime);
         
         // Update hero state machine
-        this.updateHeroState(deltaTime);
+        this.updateHeroState(this.deltaTime);
         
         // Update enemy state machine
-        this.updateEnemyState(deltaTime);
+        this.updateEnemyState(this.deltaTime);
         
         // Update skills cooldown
-        this.updateSkills(deltaTime);
+        this.updateSkills(this.deltaTime);
         
         // Update stage progression
         this.updateStageProgression();
         
         // Auto-save every 30 seconds
-        if (GameState.battle.tickCount % 30 < deltaTime) {
+        if (GameState.battle.tickCount % 30 < this.deltaTime) {
             this.saveGame();
         }
     }
@@ -432,7 +432,7 @@ class GameEngine {
         // Update active skills cooldown
         GameState.skills.active.forEach(skill => {
             if (skill.cooldown > 0) {
-                skill.cooldown -= deltaTime * GameState.battle.speed;
+                skill.cooldown -= this.deltaTime * GameState.battle.speed;
                 if (skill.cooldown < 0) skill.cooldown = 0;
             } else {
                 // Auto-cast skill
@@ -444,7 +444,7 @@ class GameEngine {
         
         // Update ultimate cooldown
         if (GameState.skills.ultimate.cooldown > 0) {
-            GameState.skills.ultimate.cooldown -= deltaTime * GameState.battle.speed;
+            GameState.skills.ultimate.cooldown -= this.deltaTime * GameState.battle.speed;
             if (GameState.skills.ultimate.cooldown < 0) {
                 GameState.skills.ultimate.cooldown = 0;
             }
