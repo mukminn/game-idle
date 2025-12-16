@@ -2,148 +2,237 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Idle RPG - Game Prototype</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Idle RPG - Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>⚔️ Idle RPG Prototype</h1>
-            <div class="currency-display">
-                <span class="currency">💰 BP: <span id="bp">0</span></span>
-                <span class="currency">💎 Crystals: <span id="crystals">100</span></span>
+    <!-- Top Status Bar -->
+    <div class="top-status-bar">
+        <div class="device-status">
+            <span id="time-display">18:53</span>
+            <div class="status-icons">
+                <span>📶</span>
+                <span>4G</span>
+                <span>32%</span>
             </div>
-        </header>
+        </div>
+    </div>
 
-        <div class="game-layout">
-            <!-- Battle Area -->
-            <div class="battle-section">
-                <h2>⚔️ Battle</h2>
-                <div class="stage-info">
-                    <div>Stage: <span id="current-stage">1</span></div>
-                    <div>Enemy: <span id="enemy-name">Goblin</span></div>
-                </div>
-                
-                <div class="battle-arena">
-                    <div class="hero-stats">
-                        <div class="stat-bar">
-                            <label>Hero HP:</label>
-                            <div class="bar-container">
-                                <div class="bar hp-bar" id="hero-hp-bar"></div>
-                                <span class="bar-text" id="hero-hp-text">1000/1000</span>
-                            </div>
-                        </div>
-                        <div class="hero-info">
-                            <div>⚔️ Hero</div>
-                            <div>ATK: <span id="hero-atk">100</span></div>
-                            <div>DEF: <span id="hero-def">50</span></div>
-                        </div>
-                    </div>
-
-                    <div class="vs-divider">VS</div>
-
-                    <div class="enemy-stats">
-                        <div class="stat-bar">
-                            <label>Enemy HP:</label>
-                            <div class="bar-container">
-                                <div class="bar enemy-hp-bar" id="enemy-hp-bar"></div>
-                                <span class="bar-text" id="enemy-hp-text">500/500</span>
-                            </div>
-                        </div>
-                        <div class="enemy-info">
-                            <div>👹 <span id="enemy-name-display">Goblin</span></div>
-                            <div>ATK: <span id="enemy-atk">50</span></div>
-                            <div>DEF: <span id="enemy-def">25</span></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="battle-controls">
-                    <button id="toggle-battle" class="btn btn-primary">Start Battle</button>
-                    <select id="battle-speed">
-                        <option value="1">Speed: x1</option>
-                        <option value="2">Speed: x2</option>
-                        <option value="3">Speed: x3</option>
-                    </select>
-                    <div class="battle-status" id="battle-status">Ready</div>
-                </div>
-
-                <div class="battle-log" id="battle-log"></div>
+    <!-- Game Header -->
+    <header class="game-header">
+        <button class="close-btn">✕ Tutup</button>
+        
+        <div class="vip-badge">
+            <div class="vip-icon">🐉</div>
+            <div class="vip-level">VIP<span id="vip-level">0</span></div>
+        </div>
+        
+        <div class="power-display">
+            <span class="flame-icon">🔥</span>
+            <span id="total-power">362.3K</span>
+        </div>
+        
+        <div class="currencies">
+            <div class="currency-item gold">
+                <span class="currency-icon">💰</span>
+                <span id="gold-amount">41,247</span>
             </div>
-
-            <!-- Hero & Upgrade Section -->
-            <div class="upgrade-section">
-                <h2>👤 Hero & Upgrades</h2>
-                
-                <div class="hero-stats-panel">
-                    <h3>Hero Stats</h3>
-                    <div class="stats-grid">
-                        <div>Level: <span id="hero-level">1</span></div>
-                        <div>EXP: <span id="hero-exp">0</span> / <span id="hero-exp-max">100</span></div>
-                        <div>HP: <span id="hero-hp-stat">1000</span></div>
-                        <div>ATK: <span id="hero-atk-stat">100</span></div>
-                        <div>DEF: <span id="hero-def-stat">50</span></div>
-                        <div>Power: <span id="hero-power">150</span></div>
-                    </div>
-                </div>
-
-                <div class="upgrade-panel">
-                    <h3>Upgrades</h3>
-                    <div class="upgrade-item">
-                        <div>Level Up</div>
-                        <div>Cost: <span id="level-up-cost">100</span> BP</div>
-                        <button class="btn btn-upgrade" id="level-up-btn">Level Up</button>
-                    </div>
-                    <div class="upgrade-item">
-                        <div>Upgrade ATK</div>
-                        <div>Cost: <span id="atk-upgrade-cost">50</span> BP</div>
-                        <button class="btn btn-upgrade" id="atk-upgrade-btn">+10 ATK</button>
-                    </div>
-                    <div class="upgrade-item">
-                        <div>Upgrade DEF</div>
-                        <div>Cost: <span id="def-upgrade-cost">50</span> BP</div>
-                        <button class="btn btn-upgrade" id="def-upgrade-btn">+5 DEF</button>
-                    </div>
-                    <div class="upgrade-item">
-                        <div>Upgrade HP</div>
-                        <div>Cost: <span id="hp-upgrade-cost">50</span> BP</div>
-                        <button class="btn btn-upgrade" id="hp-upgrade-btn">+100 HP</button>
-                    </div>
-                </div>
+            <div class="currency-item crystal">
+                <span class="currency-icon">💎</span>
+                <span id="crystal-amount">1,613</span>
             </div>
+            <div class="currency-item hex">
+                <span class="currency-icon">⬡</span>
+                <span id="hex-amount">7,588.85</span>
+            </div>
+        </div>
+        
+        <div class="stage-progress">
+            <div class="stage-name" id="stage-name">Blazing Desert Wastes 4-1</div>
+            <div class="progress-squares" id="progress-squares">
+                <!-- Squares will be generated by JS -->
+            </div>
+        </div>
+        
+        <div class="boss-chest">
+            <div class="chest-icon">📦</div>
+            <button class="enter-btn">Enter</button>
+            <div class="speech-bubble">Hit me!</div>
+        </div>
+    </header>
 
-            <!-- Equipment Section -->
-            <div class="equipment-section">
-                <h2>🛡️ Equipment</h2>
-                <div class="equipment-grid">
-                    <div class="equip-slot">
-                        <div>⚔️ Weapon</div>
-                        <div id="weapon-stat">+0 ATK</div>
-                        <button class="btn btn-small" id="upgrade-weapon">Upgrade (50 BP)</button>
+    <!-- Main Game Container -->
+    <div class="game-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar left-sidebar">
+            <div class="sidebar-btn" data-feature="coc-raid">
+                <div class="btn-icon">⚔️</div>
+                <div class="btn-label">COC Raid</div>
+                <div class="btn-timer" id="coc-timer">06:18</div>
+            </div>
+            <div class="sidebar-btn" data-feature="coc-rebate">
+                <div class="btn-icon">$</div>
+                <div class="btn-label">COC Rebate</div>
+            </div>
+            <div class="sidebar-btn" data-feature="invitation">
+                <div class="btn-icon">👤</div>
+                <div class="btn-label">Invitation</div>
+            </div>
+            <div class="sidebar-btn" data-feature="social-rewards">
+                <div class="btn-icon">🎁</div>
+                <div class="btn-label">Social Rewards</div>
+            </div>
+            <div class="sidebar-btn" data-feature="voyage-pack">
+                <div class="btn-icon">🚢</div>
+                <div class="btn-label">Voyage Pack</div>
+            </div>
+        </div>
+
+        <!-- Battle Area -->
+        <div class="battle-area">
+            <div class="battle-background" id="battle-background">
+                <!-- Battle Scene -->
+                <div class="battle-characters">
+                    <div class="character hero-character">
+                        <div class="char-visual">⚔️🛡️</div>
+                        <div class="char-hp-bar">
+                            <div class="hp-fill hero-hp" id="hero-hp-fill"></div>
+                            <span class="hp-text" id="hero-hp-text">346</span>
+                        </div>
+                        <div class="damage-number" id="hero-damage">108</div>
                     </div>
-                    <div class="equip-slot">
-                        <div>🪖 Helmet</div>
-                        <div id="helmet-stat">+0 DEF</div>
-                        <button class="btn btn-small" id="upgrade-helmet">Upgrade (50 BP)</button>
-                    </div>
-                    <div class="equip-slot">
-                        <div>🧥 Armor</div>
-                        <div id="armor-stat">+0 DEF</div>
-                        <button class="btn btn-small" id="upgrade-armor">Upgrade (50 BP)</button>
+                    
+                    <div class="character enemy-character">
+                        <div class="char-visual">🐻</div>
+                        <div class="char-hp-bar">
+                            <div class="hp-fill enemy-hp" id="enemy-hp-fill"></div>
+                            <span class="hp-text" id="enemy-hp-text">405</span>
+                        </div>
+                        <div class="damage-number large" id="enemy-damage">88</div>
+                        <div class="enemy-label">1P</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Stats Panel -->
-        <div class="stats-panel">
-            <h3>📊 Statistics</h3>
-            <div class="stats-list">
-                <div>Total Kills: <span id="total-kills">0</span></div>
-                <div>Total BP Earned: <span id="total-bp-earned">0</span></div>
-                <div>Highest Stage: <span id="highest-stage">1</span></div>
-                <div>Playtime: <span id="playtime">0</span>s</div>
+        <!-- Right Sidebar -->
+        <div class="sidebar right-sidebar">
+            <div class="sidebar-btn" data-feature="special-market">
+                <div class="btn-icon">⚖️</div>
+                <div class="btn-label">Special Market</div>
+            </div>
+            <div class="sidebar-btn" data-feature="first-purchase">
+                <div class="btn-icon">🐄</div>
+                <div class="btn-label">First Purchase</div>
+            </div>
+            <div class="sidebar-btn" data-feature="pvp">
+                <div class="btn-icon">⚔️</div>
+                <div class="btn-label">PVP</div>
+                <div class="btn-badge">!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Section -->
+    <div class="bottom-section">
+        <!-- Top Row: Level, EXP, Stats -->
+        <div class="bottom-top-row">
+            <div class="speed-multiplier">x<span id="battle-speed-display">1.6</span></div>
+            <div class="level-badge">
+                <span id="hero-level-display">38</span>
+            </div>
+            <div class="exp-bar-container">
+                <div class="exp-bar" id="exp-bar-fill"></div>
+                <span class="exp-text" id="exp-text">45/2,100</span>
+            </div>
+            <div class="stats-icon">📊</div>
+            <div class="ultimate-skill">✨</div>
+        </div>
+
+        <!-- Equipment Grid -->
+        <div class="equipment-grid">
+            <div class="equip-slot" data-slot="weapon">
+                <div class="equip-icon">⚔️</div>
+                <div class="equip-level">Lv.<span id="weapon-level">37</span></div>
+            </div>
+            <div class="equip-slot" data-slot="chest">
+                <div class="equip-icon">🛡️</div>
+                <div class="equip-level">Lv.<span id="chest-level">37</span></div>
+            </div>
+            <div class="equip-slot" data-slot="helmet">
+                <div class="equip-icon">🪖</div>
+                <div class="equip-level">Lv.<span id="helmet-level">34</span></div>
+            </div>
+            <div class="equip-slot" data-slot="shield">
+                <div class="equip-icon">🛡️</div>
+                <div class="equip-level">Lv.<span id="shield-level">36</span></div>
+            </div>
+            <div class="equip-slot" data-slot="necklace">
+                <div class="equip-icon">💍</div>
+                <div class="equip-level">Lv.<span id="necklace-level">36</span></div>
+            </div>
+            <div class="equip-slot" data-slot="pants">
+                <div class="equip-icon">👖</div>
+                <div class="equip-level">Lv.<span id="pants-level">39</span></div>
+            </div>
+            <div class="equip-slot" data-slot="belt">
+                <div class="equip-icon"> belt</div>
+                <div class="equip-level">Lv.<span id="belt-level">36</span></div>
+            </div>
+            <div class="equip-slot" data-slot="gloves">
+                <div class="equip-icon">🧤</div>
+                <div class="equip-level">Lv.<span id="gloves-level">36</span></div>
+            </div>
+            <div class="equip-slot" data-slot="wings">
+                <div class="equip-icon">🪽</div>
+                <div class="equip-level">0 Stage <span id="wings-stage">1</span> Level</div>
+            </div>
+        </div>
+
+        <!-- Quest Box -->
+        <div class="quest-box">
+            <div class="quest-text">
+                Participate in the Arena <span id="quest-progress">0</span>/<span id="quest-target">1</span> times
+            </div>
+            <div class="quest-reward">💰 <span id="quest-reward">500</span></div>
+        </div>
+
+        <!-- Active Skill -->
+        <div class="active-skill-section">
+            <div class="skill-hexagon">
+                <div class="skill-icon">💥</div>
+                <div class="skill-multiplier">x<span id="skill-multiplier">2</span></div>
+            </div>
+            <div class="skill-controls">
+                <button class="skill-btn refresh">🔄</button>
+                <button class="skill-btn crown">👑</button>
+                <button class="skill-btn star">⭐</button>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <div class="nav-item" data-nav="voyage">
+                <div class="nav-icon">🚢</div>
+                <div class="nav-label">port</div>
+                <div class="nav-badge">!</div>
+            </div>
+            <div class="nav-item" data-nav="skills">
+                <div class="nav-icon">📖</div>
+                <div class="nav-label">Skills</div>
+            </div>
+            <div class="nav-item currency-nav">
+                <div class="nav-icon">🪙</div>
+                <div class="nav-label" id="nav-currency">1,857</div>
+            </div>
+            <div class="nav-item active" data-nav="adventure">
+                <div class="nav-icon">🗺️</div>
+                <div class="nav-label">Adventure</div>
+            </div>
+            <div class="nav-item" data-nav="shop">
+                <div class="nav-icon">🏪</div>
+                <div class="nav-label">Shop</div>
             </div>
         </div>
     </div>
@@ -151,4 +240,3 @@
     <script src="game.js"></script>
 </body>
 </html>
-

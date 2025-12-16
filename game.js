@@ -2,32 +2,42 @@
 const gameState = {
     // Hero Stats
     hero: {
-        level: 1,
-        exp: 0,
-        expMax: 100,
-        hp: 1000,
+        level: 38,
+        exp: 45,
+        expMax: 2100,
+        hp: 346,
         maxHp: 1000,
         atk: 100,
         def: 50,
-        power: 150
+        power: 362300
     },
     
     // Equipment
     equipment: {
-        weapon: { level: 0, atk: 0 },
-        helmet: { level: 0, def: 0 },
-        armor: { level: 0, def: 0 }
+        weapon: { level: 37, atk: 370 },
+        helmet: { level: 34, def: 170 },
+        chest: { level: 37, def: 185 },
+        shield: { level: 36, def: 180 },
+        necklace: { level: 36, def: 180 },
+        pants: { level: 39, def: 195 },
+        belt: { level: 36, def: 180 },
+        gloves: { level: 36, def: 180 },
+        wings: { stage: 1, level: 0 }
     },
     
     // Currency
+    gold: 41247,
+    crystals: 1613,
+    hex: 7588.85,
     bp: 0,
-    crystals: 100,
     
     // Battle
-    currentStage: 1,
+    currentStage: 4,
+    currentSubStage: 1,
+    stageName: 'Blazing Desert Wastes',
     enemy: {
-        name: 'Goblin',
-        hp: 500,
+        name: 'Bear',
+        hp: 405,
         maxHp: 500,
         atk: 50,
         def: 25
@@ -35,14 +45,25 @@ const gameState = {
     
     // Battle State
     battleActive: false,
-    battleSpeed: 1,
+    battleSpeed: 1.6,
     battleInterval: null,
+    
+    // VIP
+    vipLevel: 0,
     
     // Statistics
     totalKills: 0,
     totalBpEarned: 0,
-    highestStage: 1,
+    highestStage: 4,
     playtime: 0,
+    
+    // Quest
+    quest: {
+        type: 'arena',
+        current: 0,
+        target: 1,
+        reward: 500
+    },
     
     // Upgrade Costs
     costs: {
@@ -58,103 +79,121 @@ const gameState = {
 function initGame() {
     updateUI();
     startPlaytime();
+    generateProgressSquares();
     
     // Load from localStorage if available
     loadGame();
     
     // Auto-save every 30 seconds
     setInterval(saveGame, 30000);
+    
+    // Auto-start battle
+    setTimeout(() => {
+        startBattle();
+    }, 1000);
+}
+
+// Generate Progress Squares
+function generateProgressSquares() {
+    const container = document.getElementById('progress-squares');
+    container.innerHTML = '';
+    const totalSquares = 10;
+    const currentSquare = gameState.currentSubStage;
+    
+    for (let i = 0; i < totalSquares; i++) {
+        const square = document.createElement('div');
+        square.className = 'progress-square';
+        
+        if (i < currentSquare - 1) {
+            square.classList.add('completed');
+        } else if (i === currentSquare - 1) {
+            square.classList.add('active');
+        }
+        
+        container.appendChild(square);
+    }
 }
 
 // Update All UI Elements
 function updateUI() {
-    // Currency
-    document.getElementById('bp').textContent = formatNumber(gameState.bp);
-    document.getElementById('crystals').textContent = formatNumber(gameState.crystals);
+    // VIP
+    document.getElementById('vip-level').textContent = gameState.vipLevel;
     
-    // Hero Stats
-    document.getElementById('hero-level').textContent = gameState.hero.level;
-    document.getElementById('hero-exp').textContent = gameState.hero.exp;
-    document.getElementById('hero-exp-max').textContent = gameState.hero.expMax;
-    document.getElementById('hero-hp-stat').textContent = gameState.hero.maxHp;
-    document.getElementById('hero-atk-stat').textContent = gameState.hero.atk;
-    document.getElementById('hero-def-stat').textContent = gameState.hero.def;
-    document.getElementById('hero-power').textContent = calculatePower();
+    // Power
+    document.getElementById('total-power').textContent = formatNumber(gameState.hero.power);
+    
+    // Currencies
+    document.getElementById('gold-amount').textContent = formatNumber(gameState.gold);
+    document.getElementById('crystal-amount').textContent = formatNumber(gameState.crystals);
+    document.getElementById('hex-amount').textContent = formatNumber(gameState.hex);
+    document.getElementById('nav-currency').textContent = formatNumber(gameState.gold);
+    
+    // Stage
+    document.getElementById('stage-name').textContent = `${gameState.stageName} ${gameState.currentStage}-${gameState.currentSubStage}`;
+    
+    // Hero Level & EXP
+    document.getElementById('hero-level-display').textContent = gameState.hero.level;
+    const expPercent = (gameState.hero.exp / gameState.hero.expMax) * 100;
+    document.getElementById('exp-bar-fill').style.width = expPercent + '%';
+    document.getElementById('exp-text').textContent = `${gameState.hero.exp}/${formatNumber(gameState.hero.expMax)}`;
+    
+    // Battle Speed
+    document.getElementById('battle-speed-display').textContent = gameState.battleSpeed.toFixed(1);
     
     // Hero HP Bar
     const heroHpPercent = (gameState.hero.hp / gameState.hero.maxHp) * 100;
-    document.getElementById('hero-hp-bar').style.width = heroHpPercent + '%';
-    document.getElementById('hero-hp-text').textContent = `${gameState.hero.hp}/${gameState.hero.maxHp}`;
-    
-    // Enemy Stats
-    document.getElementById('current-stage').textContent = gameState.currentStage;
-    document.getElementById('enemy-name').textContent = gameState.enemy.name;
-    document.getElementById('enemy-name-display').textContent = gameState.enemy.name;
-    document.getElementById('enemy-atk').textContent = gameState.enemy.atk;
-    document.getElementById('enemy-def').textContent = gameState.enemy.def;
+    document.getElementById('hero-hp-fill').style.width = heroHpPercent + '%';
+    document.getElementById('hero-hp-text').textContent = Math.floor(gameState.hero.hp);
     
     // Enemy HP Bar
     const enemyHpPercent = (gameState.enemy.hp / gameState.enemy.maxHp) * 100;
-    document.getElementById('enemy-hp-bar').style.width = enemyHpPercent + '%';
-    document.getElementById('enemy-hp-text').textContent = `${gameState.enemy.hp}/${gameState.enemy.maxHp}`;
+    document.getElementById('enemy-hp-fill').style.width = enemyHpPercent + '%';
+    document.getElementById('enemy-hp-text').textContent = Math.floor(gameState.enemy.hp);
     
-    // Upgrade Costs
-    document.getElementById('level-up-cost').textContent = gameState.costs.levelUp;
-    document.getElementById('atk-upgrade-cost').textContent = gameState.costs.atkUpgrade;
-    document.getElementById('def-upgrade-cost').textContent = gameState.costs.defUpgrade;
-    document.getElementById('hp-upgrade-cost').textContent = gameState.costs.hpUpgrade;
+    // Equipment Levels
+    document.getElementById('weapon-level').textContent = gameState.equipment.weapon.level;
+    document.getElementById('chest-level').textContent = gameState.equipment.chest.level;
+    document.getElementById('helmet-level').textContent = gameState.equipment.helmet.level;
+    document.getElementById('shield-level').textContent = gameState.equipment.shield.level;
+    document.getElementById('necklace-level').textContent = gameState.equipment.necklace.level;
+    document.getElementById('pants-level').textContent = gameState.equipment.pants.level;
+    document.getElementById('belt-level').textContent = gameState.equipment.belt.level;
+    document.getElementById('gloves-level').textContent = gameState.equipment.gloves.level;
+    document.getElementById('wings-stage').textContent = gameState.equipment.wings.stage;
     
-    // Equipment
-    const totalAtk = gameState.equipment.weapon.atk;
-    const totalDef = gameState.equipment.helmet.def + gameState.equipment.armor.def;
-    document.getElementById('weapon-stat').textContent = `+${totalAtk} ATK`;
-    document.getElementById('helmet-stat').textContent = `+${totalDef / 2} DEF`;
-    document.getElementById('armor-stat').textContent = `+${totalDef / 2} DEF`;
+    // Quest
+    document.getElementById('quest-progress').textContent = gameState.quest.current;
+    document.getElementById('quest-target').textContent = gameState.quest.target;
+    document.getElementById('quest-reward').textContent = gameState.quest.reward;
     
-    // Statistics
-    document.getElementById('total-kills').textContent = gameState.totalKills;
-    document.getElementById('total-bp-earned').textContent = formatNumber(gameState.totalBpEarned);
-    document.getElementById('highest-stage').textContent = gameState.highestStage;
-    document.getElementById('playtime').textContent = Math.floor(gameState.playtime);
-    
-    // Update button states
-    updateButtonStates();
-}
-
-// Update Button States
-function updateButtonStates() {
-    document.getElementById('level-up-btn').disabled = gameState.bp < gameState.costs.levelUp;
-    document.getElementById('atk-upgrade-btn').disabled = gameState.bp < gameState.costs.atkUpgrade;
-    document.getElementById('def-upgrade-btn').disabled = gameState.bp < gameState.costs.defUpgrade;
-    document.getElementById('hp-upgrade-btn').disabled = gameState.bp < gameState.costs.hpUpgrade;
-    
-    const equipCost = gameState.costs.equipment;
-    document.getElementById('upgrade-weapon').disabled = gameState.bp < equipCost;
-    document.getElementById('upgrade-helmet').disabled = gameState.bp < equipCost;
-    document.getElementById('upgrade-armor').disabled = gameState.bp < equipCost;
+    // Update Power
+    gameState.hero.power = calculatePower();
+    document.getElementById('total-power').textContent = formatNumber(gameState.hero.power);
 }
 
 // Calculate Total Power
 function calculatePower() {
     const totalAtk = gameState.hero.atk + gameState.equipment.weapon.atk;
-    const totalDef = gameState.hero.def + gameState.equipment.helmet.def + gameState.equipment.armor.def;
-    return Math.floor((totalAtk * 10) + (totalDef * 5) + (gameState.hero.maxHp * 0.1));
+    const totalDef = gameState.hero.def + 
+        gameState.equipment.helmet.def + 
+        gameState.equipment.chest.def + 
+        gameState.equipment.shield.def + 
+        gameState.equipment.necklace.def + 
+        gameState.equipment.pants.def + 
+        gameState.equipment.belt.def + 
+        gameState.equipment.gloves.def;
+    return Math.floor((totalAtk * 100) + (totalDef * 50) + (gameState.hero.maxHp * 10) + (gameState.hero.level * 1000));
 }
 
 // Battle System
 function startBattle() {
     if (gameState.battleActive) {
-        stopBattle();
         return;
     }
     
     gameState.battleActive = true;
-    document.getElementById('toggle-battle').textContent = 'Stop Battle';
-    document.getElementById('battle-status').textContent = 'Fighting...';
-    document.getElementById('battle-status').style.background = '#f44336';
     
-    const speed = parseInt(document.getElementById('battle-speed').value);
-    const interval = 1000 / speed; // Convert to milliseconds
+    const interval = 1000 / gameState.battleSpeed; // Convert to milliseconds
     
     gameState.battleInterval = setInterval(() => {
         performBattleTurn();
@@ -167,18 +206,15 @@ function stopBattle() {
         clearInterval(gameState.battleInterval);
         gameState.battleInterval = null;
     }
-    document.getElementById('toggle-battle').textContent = 'Start Battle';
-    document.getElementById('battle-status').textContent = 'Stopped';
-    document.getElementById('battle-status').style.background = '#9e9e9e';
 }
 
 function performBattleTurn() {
     // Hero attacks enemy
     const heroAtk = gameState.hero.atk + gameState.equipment.weapon.atk;
-    const damageToEnemy = Math.max(1, heroAtk - gameState.enemy.def);
+    const damageToEnemy = Math.max(1, Math.floor(heroAtk * (0.8 + Math.random() * 0.4)) - gameState.enemy.def);
     gameState.enemy.hp -= damageToEnemy;
     
-    addBattleLog(`Hero attacks for ${damageToEnemy} damage!`, 'log-damage');
+    showDamageNumber('enemy-damage', damageToEnemy);
     
     // Check if enemy is dead
     if (gameState.enemy.hp <= 0) {
@@ -187,10 +223,14 @@ function performBattleTurn() {
     }
     
     // Enemy attacks hero
-    const damageToHero = Math.max(1, gameState.enemy.atk - (gameState.hero.def + gameState.equipment.helmet.def + gameState.equipment.armor.def));
+    const damageToHero = Math.max(1, Math.floor(gameState.enemy.atk * (0.8 + Math.random() * 0.4)) - 
+        (gameState.hero.def + 
+         gameState.equipment.helmet.def + 
+         gameState.equipment.chest.def + 
+         gameState.equipment.shield.def));
     gameState.hero.hp -= damageToHero;
     
-    addBattleLog(`${gameState.enemy.name} attacks for ${damageToHero} damage!`, 'log-damage');
+    showDamageNumber('hero-damage', damageToHero);
     
     // Check if hero is dead
     if (gameState.hero.hp <= 0) {
@@ -201,24 +241,46 @@ function performBattleTurn() {
     updateUI();
 }
 
+function showDamageNumber(elementId, damage) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = Math.floor(damage);
+        element.style.animation = 'none';
+        setTimeout(() => {
+            element.style.animation = 'floatUp 1s ease-out forwards';
+        }, 10);
+    }
+}
+
 function enemyDefeated() {
     gameState.enemy.hp = 0;
     
     // Calculate rewards
-    const bpReward = Math.floor(10 * gameState.currentStage * 1.1);
+    const goldReward = Math.floor(10 * gameState.currentStage * 1.1);
     const expReward = Math.floor(10 * gameState.currentStage * 1.05);
     
-    gameState.bp += bpReward;
-    gameState.totalBpEarned += bpReward;
+    gameState.gold += goldReward;
+    gameState.totalBpEarned += goldReward;
     gameState.hero.exp += expReward;
     gameState.totalKills++;
-    
-    addBattleLog(`Enemy defeated! +${bpReward} BP, +${expReward} EXP`, 'log-kill');
     
     // Check for level up
     checkLevelUp();
     
-    // Spawn new enemy or progress stage
+    // Progress stage
+    if (gameState.totalKills % 10 === 0) {
+        gameState.currentSubStage++;
+        if (gameState.currentSubStage > 10) {
+            gameState.currentSubStage = 1;
+            gameState.currentStage++;
+            if (gameState.currentStage > gameState.highestStage) {
+                gameState.highestStage = gameState.currentStage;
+            }
+        }
+        generateProgressSquares();
+    }
+    
+    // Spawn new enemy
     spawnNewEnemy();
     
     updateUI();
@@ -226,9 +288,8 @@ function enemyDefeated() {
 
 function heroDefeated() {
     gameState.hero.hp = 0;
-    addBattleLog('Hero defeated! Restarting...', 'log-damage');
     
-    // Reset hero HP
+    // Reset hero HP after 2 seconds
     setTimeout(() => {
         gameState.hero.hp = gameState.hero.maxHp;
         updateUI();
@@ -236,22 +297,17 @@ function heroDefeated() {
 }
 
 function spawnNewEnemy() {
-    // Progress stage every 10 kills
-    if (gameState.totalKills % 10 === 0) {
-        gameState.currentStage++;
-        if (gameState.currentStage > gameState.highestStage) {
-            gameState.highestStage = gameState.currentStage;
-        }
-    }
-    
     // Scale enemy based on stage
     const stageMultiplier = 1 + (gameState.currentStage * 0.1);
     const baseHp = 500;
     const baseAtk = 50;
     const baseDef = 25;
     
+    const enemyNames = ['Goblin', 'Orc', 'Bear', 'Troll', 'Demon', 'Dragon'];
+    const enemyIndex = Math.min(Math.floor(gameState.currentStage / 5), enemyNames.length - 1);
+    
     gameState.enemy = {
-        name: getEnemyName(gameState.currentStage),
+        name: enemyNames[enemyIndex],
         hp: Math.floor(baseHp * Math.pow(gameState.currentStage, 1.15)),
         maxHp: Math.floor(baseHp * Math.pow(gameState.currentStage, 1.15)),
         atk: Math.floor(baseAtk * Math.pow(gameState.currentStage, 1.1)),
@@ -260,12 +316,6 @@ function spawnNewEnemy() {
     
     // Heal hero
     gameState.hero.hp = gameState.hero.maxHp;
-}
-
-function getEnemyName(stage) {
-    const enemies = ['Goblin', 'Orc', 'Troll', 'Demon', 'Dragon', 'Boss'];
-    const index = Math.min(Math.floor(stage / 20), enemies.length - 1);
-    return enemies[index];
 }
 
 function checkLevelUp() {
@@ -287,81 +337,6 @@ function checkLevelUp() {
         gameState.costs.atkUpgrade = Math.floor(50 * Math.pow(gameState.hero.level, 1.2));
         gameState.costs.defUpgrade = Math.floor(50 * Math.pow(gameState.hero.level, 1.2));
         gameState.costs.hpUpgrade = Math.floor(50 * Math.pow(gameState.hero.level, 1.2));
-        
-        addBattleLog(`Level Up! Now Level ${gameState.hero.level}!`, 'log-level');
-    }
-}
-
-function addBattleLog(message, className = '') {
-    const log = document.getElementById('battle-log');
-    const logEntry = document.createElement('div');
-    logEntry.className = className;
-    logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-    log.insertBefore(logEntry, log.firstChild);
-    
-    // Keep only last 50 entries
-    while (log.children.length > 50) {
-        log.removeChild(log.lastChild);
-    }
-}
-
-// Upgrade Functions
-function levelUp() {
-    if (gameState.bp >= gameState.costs.levelUp) {
-        gameState.bp -= gameState.costs.levelUp;
-        gameState.hero.expMax = Math.floor(100 * Math.pow(gameState.hero.level, 1.8));
-        gameState.hero.exp = gameState.hero.expMax;
-        checkLevelUp();
-        updateUI();
-    }
-}
-
-function upgradeAtk() {
-    if (gameState.bp >= gameState.costs.atkUpgrade) {
-        gameState.bp -= gameState.costs.atkUpgrade;
-        gameState.hero.atk += 10;
-        gameState.costs.atkUpgrade = Math.floor(gameState.costs.atkUpgrade * 1.2);
-        updateUI();
-    }
-}
-
-function upgradeDef() {
-    if (gameState.bp >= gameState.costs.defUpgrade) {
-        gameState.bp -= gameState.costs.defUpgrade;
-        gameState.hero.def += 5;
-        gameState.costs.defUpgrade = Math.floor(gameState.costs.defUpgrade * 1.2);
-        updateUI();
-    }
-}
-
-function upgradeHp() {
-    if (gameState.bp >= gameState.costs.hpUpgrade) {
-        gameState.bp -= gameState.costs.hpUpgrade;
-        const hpIncrease = 100;
-        gameState.hero.maxHp += hpIncrease;
-        gameState.hero.hp += hpIncrease;
-        gameState.costs.hpUpgrade = Math.floor(gameState.costs.hpUpgrade * 1.2);
-        updateUI();
-    }
-}
-
-function upgradeEquipment(type) {
-    if (gameState.bp >= gameState.costs.equipment) {
-        gameState.bp -= gameState.costs.equipment;
-        
-        if (type === 'weapon') {
-            gameState.equipment.weapon.level++;
-            gameState.equipment.weapon.atk += 10;
-        } else if (type === 'helmet') {
-            gameState.equipment.helmet.level++;
-            gameState.equipment.helmet.def += 5;
-        } else if (type === 'armor') {
-            gameState.equipment.armor.level++;
-            gameState.equipment.armor.def += 5;
-        }
-        
-        gameState.costs.equipment = Math.floor(gameState.costs.equipment * 1.3);
-        updateUI();
     }
 }
 
@@ -369,13 +344,23 @@ function upgradeEquipment(type) {
 function formatNumber(num) {
     if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(2) + 'K';
-    return num.toString();
+    return num.toLocaleString();
 }
 
 function startPlaytime() {
     setInterval(() => {
         gameState.playtime++;
-        updateUI();
+    }, 1000);
+    
+    // Update time display
+    setInterval(() => {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const timeDisplay = document.getElementById('time-display');
+        if (timeDisplay) {
+            timeDisplay.textContent = `${hours}:${minutes}`;
+        }
     }, 1000);
 }
 
@@ -391,6 +376,7 @@ function loadGame() {
             const loaded = JSON.parse(save);
             Object.assign(gameState, loaded);
             updateUI();
+            generateProgressSquares();
         } catch (e) {
             console.error('Failed to load save:', e);
         }
@@ -401,27 +387,41 @@ function loadGame() {
 document.addEventListener('DOMContentLoaded', () => {
     initGame();
     
-    // Battle Controls
-    document.getElementById('toggle-battle').addEventListener('click', startBattle);
-    document.getElementById('battle-speed').addEventListener('change', (e) => {
-        if (gameState.battleActive) {
-            stopBattle();
-            startBattle();
-        }
+    // Sidebar buttons
+    document.querySelectorAll('.sidebar-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const feature = this.dataset.feature;
+            console.log(`Feature clicked: ${feature}`);
+            // Add feature functionality here
+        });
     });
     
-    // Upgrades
-    document.getElementById('level-up-btn').addEventListener('click', levelUp);
-    document.getElementById('atk-upgrade-btn').addEventListener('click', upgradeAtk);
-    document.getElementById('def-upgrade-btn').addEventListener('click', upgradeDef);
-    document.getElementById('hp-upgrade-btn').addEventListener('click', upgradeHp);
+    // Navigation items
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            this.classList.add('active');
+            const nav = this.dataset.nav;
+            console.log(`Navigation: ${nav}`);
+            // Add navigation functionality here
+        });
+    });
     
-    // Equipment
-    document.getElementById('upgrade-weapon').addEventListener('click', () => upgradeEquipment('weapon'));
-    document.getElementById('upgrade-helmet').addEventListener('click', () => upgradeEquipment('helmet'));
-    document.getElementById('upgrade-armor').addEventListener('click', () => upgradeEquipment('armor'));
+    // Equipment slots
+    document.querySelectorAll('.equip-slot').forEach(slot => {
+        slot.addEventListener('click', function() {
+            const slotType = this.dataset.slot;
+            console.log(`Equipment slot clicked: ${slotType}`);
+            // Add equipment upgrade functionality here
+        });
+    });
+    
+    // Boss chest
+    document.querySelector('.chest-icon')?.addEventListener('click', function() {
+        console.log('Boss chest clicked!');
+        // Add boss battle functionality here
+    });
     
     // Auto-save on page unload
     window.addEventListener('beforeunload', saveGame);
 });
-
