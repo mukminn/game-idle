@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idle RPG - Game Prototype</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚔️ Idle RPG Prototype</h1>
+            <div class="currency-display">
+                <span class="currency">💰 BP: <span id="bp">0</span></span>
+                <span class="currency">💎 Crystals: <span id="crystals">100</span></span>
+            </div>
+        </header>
+
+        <div class="game-layout">
+            <!-- Battle Area -->
+            <div class="battle-section">
+                <h2>⚔️ Battle</h2>
+                <div class="stage-info">
+                    <div>Stage: <span id="current-stage">1</span></div>
+                    <div>Enemy: <span id="enemy-name">Goblin</span></div>
+                </div>
+                
+                <div class="battle-arena">
+                    <div class="hero-stats">
+                        <div class="stat-bar">
+                            <label>Hero HP:</label>
+                            <div class="bar-container">
+                                <div class="bar hp-bar" id="hero-hp-bar"></div>
+                                <span class="bar-text" id="hero-hp-text">1000/1000</span>
+                            </div>
+                        </div>
+                        <div class="hero-info">
+                            <div>⚔️ Hero</div>
+                            <div>ATK: <span id="hero-atk">100</span></div>
+                            <div>DEF: <span id="hero-def">50</span></div>
+                        </div>
+                    </div>
+
+                    <div class="vs-divider">VS</div>
+
+                    <div class="enemy-stats">
+                        <div class="stat-bar">
+                            <label>Enemy HP:</label>
+                            <div class="bar-container">
+                                <div class="bar enemy-hp-bar" id="enemy-hp-bar"></div>
+                                <span class="bar-text" id="enemy-hp-text">500/500</span>
+                            </div>
+                        </div>
+                        <div class="enemy-info">
+                            <div>👹 <span id="enemy-name-display">Goblin</span></div>
+                            <div>ATK: <span id="enemy-atk">50</span></div>
+                            <div>DEF: <span id="enemy-def">25</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="battle-controls">
+                    <button id="toggle-battle" class="btn btn-primary">Start Battle</button>
+                    <select id="battle-speed">
+                        <option value="1">Speed: x1</option>
+                        <option value="2">Speed: x2</option>
+                        <option value="3">Speed: x3</option>
+                    </select>
+                    <div class="battle-status" id="battle-status">Ready</div>
+                </div>
+
+                <div class="battle-log" id="battle-log"></div>
+            </div>
+
+            <!-- Hero & Upgrade Section -->
+            <div class="upgrade-section">
+                <h2>👤 Hero & Upgrades</h2>
+                
+                <div class="hero-stats-panel">
+                    <h3>Hero Stats</h3>
+                    <div class="stats-grid">
+                        <div>Level: <span id="hero-level">1</span></div>
+                        <div>EXP: <span id="hero-exp">0</span> / <span id="hero-exp-max">100</span></div>
+                        <div>HP: <span id="hero-hp-stat">1000</span></div>
+                        <div>ATK: <span id="hero-atk-stat">100</span></div>
+                        <div>DEF: <span id="hero-def-stat">50</span></div>
+                        <div>Power: <span id="hero-power">150</span></div>
+                    </div>
+                </div>
+
+                <div class="upgrade-panel">
+                    <h3>Upgrades</h3>
+                    <div class="upgrade-item">
+                        <div>Level Up</div>
+                        <div>Cost: <span id="level-up-cost">100</span> BP</div>
+                        <button class="btn btn-upgrade" id="level-up-btn">Level Up</button>
+                    </div>
+                    <div class="upgrade-item">
+                        <div>Upgrade ATK</div>
+                        <div>Cost: <span id="atk-upgrade-cost">50</span> BP</div>
+                        <button class="btn btn-upgrade" id="atk-upgrade-btn">+10 ATK</button>
+                    </div>
+                    <div class="upgrade-item">
+                        <div>Upgrade DEF</div>
+                        <div>Cost: <span id="def-upgrade-cost">50</span> BP</div>
+                        <button class="btn btn-upgrade" id="def-upgrade-btn">+5 DEF</button>
+                    </div>
+                    <div class="upgrade-item">
+                        <div>Upgrade HP</div>
+                        <div>Cost: <span id="hp-upgrade-cost">50</span> BP</div>
+                        <button class="btn btn-upgrade" id="hp-upgrade-btn">+100 HP</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Equipment Section -->
+            <div class="equipment-section">
+                <h2>🛡️ Equipment</h2>
+                <div class="equipment-grid">
+                    <div class="equip-slot">
+                        <div>⚔️ Weapon</div>
+                        <div id="weapon-stat">+0 ATK</div>
+                        <button class="btn btn-small" id="upgrade-weapon">Upgrade (50 BP)</button>
+                    </div>
+                    <div class="equip-slot">
+                        <div>🪖 Helmet</div>
+                        <div id="helmet-stat">+0 DEF</div>
+                        <button class="btn btn-small" id="upgrade-helmet">Upgrade (50 BP)</button>
+                    </div>
+                    <div class="equip-slot">
+                        <div>🧥 Armor</div>
+                        <div id="armor-stat">+0 DEF</div>
+                        <button class="btn btn-small" id="upgrade-armor">Upgrade (50 BP)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Panel -->
+        <div class="stats-panel">
+            <h3>📊 Statistics</h3>
+            <div class="stats-list">
+                <div>Total Kills: <span id="total-kills">0</span></div>
+                <div>Total BP Earned: <span id="total-bp-earned">0</span></div>
+                <div>Highest Stage: <span id="highest-stage">1</span></div>
+                <div>Playtime: <span id="playtime">0</span>s</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
+

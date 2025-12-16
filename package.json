@@ -1,0 +1,22 @@
+{
+  "name": "idle-rpg-game",
+  "version": "1.0.0",
+  "description": "Idle RPG Game - Auto Battle RPG Prototype",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "idle",
+    "rpg",
+    "game",
+    "auto-battle"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
+
