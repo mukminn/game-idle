@@ -87,10 +87,13 @@ function initGame() {
     // Auto-save every 30 seconds
     setInterval(saveGame, 30000);
     
-    // Auto-start battle
-    setTimeout(() => {
-        startBattle();
-    }, 1000);
+    // Auto-start battle (only if tutorial not shown)
+    const tutorialShown = localStorage.getItem('tutorial_shown');
+    if (tutorialShown) {
+        setTimeout(() => {
+            startBattle();
+        }, 1000);
+    }
 }
 
 // Generate Progress Squares
@@ -139,6 +142,12 @@ function updateUI() {
     
     // Battle Speed
     document.getElementById('battle-speed-display').textContent = gameState.battleSpeed.toFixed(1);
+    
+    // Update battle status text
+    const battleStatusText = document.getElementById('battle-status-text');
+    if (battleStatusText) {
+        battleStatusText.textContent = gameState.battleActive ? '⚔️ Auto Battle: ON' : '⚔️ Auto Battle: OFF';
+    }
     
     // Hero HP Bar
     const heroHpPercent = (gameState.hero.hp / gameState.hero.maxHp) * 100;
@@ -264,8 +273,17 @@ function enemyDefeated() {
     gameState.hero.exp += expReward;
     gameState.totalKills++;
     
+    // Show reward message
+    if (gameState.totalKills % 5 === 0) {
+        showStatusMessage(`💰 +${goldReward} Gold | +${expReward} EXP | Total Kills: ${gameState.totalKills}`, 2000);
+    }
+    
     // Check for level up
+    const oldLevel = gameState.hero.level;
     checkLevelUp();
+    if (gameState.hero.level > oldLevel) {
+        showStatusMessage(`🎉 LEVEL UP! Level ${gameState.hero.level}!`, 3000);
+    }
     
     // Progress stage
     if (gameState.totalKills % 10 === 0) {
@@ -276,6 +294,7 @@ function enemyDefeated() {
             if (gameState.currentStage > gameState.highestStage) {
                 gameState.highestStage = gameState.currentStage;
             }
+            showStatusMessage(`🌟 Stage ${gameState.currentStage} Unlocked!`, 3000);
         }
         generateProgressSquares();
     }
@@ -340,6 +359,35 @@ function checkLevelUp() {
     }
 }
 
+// Equipment Upgrade Function
+function upgradeEquipment(slotType) {
+    if (!gameState.equipment[slotType]) {
+        showStatusMessage('❌ Equipment slot tidak valid!', 2000);
+        return;
+    }
+    
+    const cost = gameState.costs.equipment * (gameState.equipment[slotType].level + 1);
+    
+    if (gameState.gold < cost) {
+        showStatusMessage(`💰 Tidak cukup Gold! Butuh ${formatNumber(cost)}`, 2000);
+        return;
+    }
+    
+    gameState.gold -= cost;
+    gameState.equipment[slotType].level++;
+    
+    // Increase stats based on equipment type
+    if (slotType === 'weapon') {
+        gameState.equipment[slotType].atk += 10;
+    } else {
+        gameState.equipment[slotType].def = (gameState.equipment[slotType].def || 0) + 5;
+    }
+    
+    showStatusMessage(`⬆️ ${slotType.toUpperCase()} upgraded to Level ${gameState.equipment[slotType].level}!`, 2000);
+    updateUI();
+    saveGame();
+}
+
 // Utility Functions
 function formatNumber(num) {
     if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
@@ -383,8 +431,46 @@ function loadGame() {
     }
 }
 
+// Tutorial Functions
+let currentTutorialStep = 1;
+const totalTutorialSteps = 3;
+
+function nextTutorial() {
+    document.getElementById(`step-${currentTutorialStep}`).classList.remove('active');
+    currentTutorialStep++;
+    if (currentTutorialStep > totalTutorialSteps) {
+        closeTutorial();
+    } else {
+        document.getElementById(`step-${currentTutorialStep}`).classList.add('active');
+    }
+}
+
+function closeTutorial() {
+    document.getElementById('tutorial-overlay').classList.add('hidden');
+    localStorage.setItem('tutorial_shown', 'true');
+    showStatusMessage('🎮 Game dimulai! Pertarungan berjalan otomatis...');
+    startBattle();
+}
+
+// Show Status Message
+function showStatusMessage(message, duration = 3000) {
+    const statusMsg = document.getElementById('status-message');
+    statusMsg.textContent = message;
+    statusMsg.classList.add('show');
+    
+    setTimeout(() => {
+        statusMsg.classList.remove('show');
+    }, duration);
+}
+
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
+    // Check if tutorial already shown
+    const tutorialShown = localStorage.getItem('tutorial_shown');
+    if (tutorialShown) {
+        document.getElementById('tutorial-overlay').classList.add('hidden');
+    }
+    
     initGame();
     
     // Sidebar buttons
@@ -411,8 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.equip-slot').forEach(slot => {
         slot.addEventListener('click', function() {
             const slotType = this.dataset.slot;
-            console.log(`Equipment slot clicked: ${slotType}`);
-            // Add equipment upgrade functionality here
+            upgradeEquipment(slotType);
         });
     });
     

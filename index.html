@@ -7,6 +7,49 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Welcome/Tutorial Overlay -->
+    <div class="tutorial-overlay" id="tutorial-overlay">
+        <div class="tutorial-content">
+            <h2>🎮 Selamat Datang di Idle RPG!</h2>
+            <div class="tutorial-steps">
+                <div class="tutorial-step active" id="step-1">
+                    <h3>⚔️ Cara Bermain</h3>
+                    <p><strong>Game ini adalah Idle RPG - pertarungan berjalan otomatis!</strong></p>
+                    <ul>
+                        <li>🎯 Hero akan menyerang musuh secara otomatis</li>
+                        <li>💰 Kalahkan musuh untuk dapat Gold & EXP</li>
+                        <li>⬆️ Level up untuk jadi lebih kuat</li>
+                        <li>🛡️ Upgrade equipment untuk power lebih besar</li>
+                    </ul>
+                    <button class="tutorial-btn" onclick="nextTutorial()">Lanjut →</button>
+                </div>
+                <div class="tutorial-step" id="step-2">
+                    <h3>💰 Currency & Resources</h3>
+                    <ul>
+                        <li><strong>💰 Gold:</strong> Untuk upgrade hero & equipment</li>
+                        <li><strong>💎 Crystals:</strong> Premium currency (dari event/achievement)</li>
+                        <li><strong>⬡ Hex:</strong> Special currency</li>
+                        <li><strong>🔥 Power:</strong> Total kekuatan hero (ATK + DEF + HP)</li>
+                    </ul>
+                    <button class="tutorial-btn" onclick="nextTutorial()">Lanjut →</button>
+                </div>
+                <div class="tutorial-step" id="step-3">
+                    <h3>🛡️ Equipment & Upgrade</h3>
+                    <ul>
+                        <li>Klik equipment slot di bawah untuk upgrade</li>
+                        <li>Setiap upgrade meningkatkan stat (ATK/DEF)</li>
+                        <li>Equipment level lebih tinggi = power lebih besar</li>
+                        <li>Upgrade hero level untuk stat dasar lebih tinggi</li>
+                    </ul>
+                    <button class="tutorial-btn" onclick="closeTutorial()">Mulai Bermain! 🎮</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Status Message -->
+    <div class="status-message" id="status-message"></div>
+
     <!-- Top Status Bar -->
     <div class="top-status-bar">
         <div class="device-status">
@@ -92,9 +135,20 @@
         <!-- Battle Area -->
         <div class="battle-area">
             <div class="battle-background" id="battle-background">
+                <!-- Battle Info Banner -->
+                <div class="battle-info-banner">
+                    <div class="battle-status-indicator">
+                        <span id="battle-status-text">⚔️ Auto Battle: ON</span>
+                    </div>
+                    <div class="battle-help-text">
+                        💡 Pertarungan berjalan otomatis! Klik equipment untuk upgrade
+                    </div>
+                </div>
+                
                 <!-- Battle Scene -->
                 <div class="battle-characters">
                     <div class="character hero-character">
+                        <div class="char-label">⚔️ Hero</div>
                         <div class="char-visual">⚔️🛡️</div>
                         <div class="char-hp-bar">
                             <div class="hp-fill hero-hp" id="hero-hp-fill"></div>
@@ -104,6 +158,7 @@
                     </div>
                     
                     <div class="character enemy-character">
+                        <div class="char-label">👹 Enemy</div>
                         <div class="char-visual">🐻</div>
                         <div class="char-hp-bar">
                             <div class="hp-fill enemy-hp" id="enemy-hp-fill"></div>
@@ -151,6 +206,10 @@
         </div>
 
         <!-- Equipment Grid -->
+        <div class="equipment-section-header">
+            <h3>🛡️ Equipment - Klik untuk Upgrade!</h3>
+            <div class="help-icon" title="Klik equipment slot untuk upgrade dengan Gold">❓</div>
+        </div>
         <div class="equipment-grid">
             <div class="equip-slot" data-slot="weapon">
                 <div class="equip-icon">⚔️</div>
