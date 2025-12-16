@@ -3,20 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Idle RPG - Full Game</title>
+    <title>Idle RPG - Real Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div class="loading-screen" id="loading-screen">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Loading Game...</div>
-        </div>
-    </div>
-
     <!-- Main Game Container -->
-    <div class="game-wrapper" id="game-wrapper">
+    <div class="game-wrapper">
         <!-- Top Bar -->
         <header class="game-header">
             <div class="header-left">
@@ -24,7 +16,7 @@
                     <div class="player-name" id="player-name">Player</div>
                     <div class="player-level">Lv.<span id="player-level">1</span></div>
                 </div>
-                <div class="vip-badge" id="vip-badge">
+                <div class="vip-badge">
                     <span>VIP</span><span id="vip-level">0</span>
                 </div>
             </div>
@@ -46,178 +38,62 @@
                         <span class="currency-icon">💎</span>
                         <span id="currency-crystal">100</span>
                     </div>
-                    <div class="currency-item coin">
-                        <span class="currency-icon">🪙</span>
-                        <span id="currency-coin">0</span>
-                    </div>
                 </div>
             </div>
         </header>
 
-        <!-- Stage Info -->
+        <!-- Stage Bar -->
         <div class="stage-bar">
             <div class="stage-info">
-                <span class="stage-label">Stage</span>
+                <span>Stage</span>
                 <span id="current-stage">1-1</span>
             </div>
             <div class="stage-progress-bar">
                 <div class="progress-fill" id="stage-progress"></div>
             </div>
             <div class="speed-controls">
-                <button class="speed-btn" data-speed="1">x1</button>
-                <button class="speed-btn active" data-speed="2">x2</button>
+                <button class="speed-btn active" data-speed="1">x1</button>
+                <button class="speed-btn" data-speed="2">x2</button>
                 <button class="speed-btn" data-speed="3">x3</button>
-                <button class="speed-btn locked" data-speed="5" id="speed-5">x5🔒</button>
             </div>
         </div>
 
-        <!-- Main Game Area -->
-        <div class="game-area">
-            <!-- Battle Scene -->
-            <div class="battle-scene" id="battle-scene">
-                <div class="battle-background" id="battle-bg">
-                    <div class="bg-layer layer-1"></div>
-                    <div class="bg-layer layer-2"></div>
-                    <div class="bg-layer layer-3"></div>
+        <!-- Main Game Canvas -->
+        <div class="game-canvas-container">
+            <canvas id="game-canvas"></canvas>
+            
+            <!-- UI Overlay -->
+            <div class="canvas-ui">
+                <!-- Hero HP Bar -->
+                <div class="ui-hp-bar hero-hp-bar">
+                    <div class="hp-bar-bg"></div>
+                    <div class="hp-bar-fill" id="hero-hp-bar"></div>
+                    <div class="hp-bar-text" id="hero-hp-text">1000/1000</div>
                 </div>
                 
-                <!-- Hero -->
-                <div class="hero-wrapper" id="hero-wrapper">
-                    <div class="hero-container" id="hero-container">
-                        <div class="hero-sprite" id="hero-sprite">
-                            <div class="hero-body" id="hero-body">⚔️</div>
-                            <div class="hero-weapon" id="hero-weapon"></div>
-                            <div class="hero-effects" id="hero-effects"></div>
-                        </div>
-                        <div class="hero-hp-bar">
-                            <div class="hp-bar-bg"></div>
-                            <div class="hp-bar-fill" id="hero-hp-bar"></div>
-                            <div class="hp-bar-text" id="hero-hp-text">1000/1000</div>
-                        </div>
-                        <div class="hero-name">Hero</div>
-                    </div>
-                </div>
-                
-                <!-- Enemy Container -->
-                <div class="enemy-wrapper" id="enemy-wrapper">
-                    <!-- Enemies spawned dynamically -->
-                </div>
-                
-                <!-- Loot Drops -->
-                <div class="loot-container" id="loot-container"></div>
-                
-                <!-- Damage Numbers -->
-                <div class="damage-container" id="damage-container"></div>
-            </div>
-
-            <!-- Side Panels -->
-            <div class="side-panels">
-                <!-- Left Panel - Stats -->
-                <div class="panel stats-panel">
-                    <h3>Stats</h3>
-                    <div class="stats-list">
-                        <div class="stat-item">
-                            <span>HP:</span>
-                            <span id="stat-hp">1000</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>ATK:</span>
-                            <span id="stat-atk">100</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>DEF:</span>
-                            <span id="stat-def">50</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Crit:</span>
-                            <span id="stat-crit">5%</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Speed:</span>
-                            <span id="stat-speed">1.0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Panel - Equipment -->
-                <div class="panel equipment-panel">
-                    <h3>Equipment</h3>
-                    <div class="equipment-grid" id="equipment-grid">
-                        <!-- Equipment slots generated by JS -->
-                    </div>
+                <!-- Enemy HP Bar -->
+                <div class="ui-hp-bar enemy-hp-bar">
+                    <div class="hp-bar-bg"></div>
+                    <div class="hp-bar-fill" id="enemy-hp-bar"></div>
+                    <div class="hp-bar-text" id="enemy-hp-text">500/500</div>
                 </div>
             </div>
         </div>
 
-        <!-- Bottom Bar -->
-        <div class="bottom-bar">
-            <div class="tab-buttons">
-                <button class="tab-btn active" data-tab="adventure">Adventure</button>
-                <button class="tab-btn" data-tab="equipment">Equipment</button>
-                <button class="tab-btn" data-tab="skills">Skills</button>
-                <button class="tab-btn" data-tab="shop">Shop</button>
-                <button class="tab-btn" data-tab="vip">VIP</button>
-            </div>
-        </div>
-
-        <!-- Tab Content -->
-        <div class="tab-content" id="tab-content">
-            <!-- Adventure Tab (default) -->
-            <div class="tab-pane active" id="tab-adventure">
-                <div class="adventure-content">
-                    <div class="idle-info">
-                        <h4>Idle Rewards</h4>
-                        <div class="idle-timer">Offline Time: <span id="offline-time">0s</span></div>
-                        <div class="idle-reward">Reward: <span id="idle-reward">0</span> BP</div>
-                        <button class="btn-claim" id="btn-claim-idle">Claim</button>
-                    </div>
+        <!-- Bottom Panel -->
+        <div class="bottom-panel">
+            <div class="stats-display">
+                <div class="stat-item">
+                    <span>ATK:</span>
+                    <span id="stat-atk">100</span>
                 </div>
-            </div>
-
-            <!-- Equipment Tab -->
-            <div class="tab-pane" id="tab-equipment">
-                <div class="equipment-content">
-                    <div class="equipment-detail" id="equipment-detail">
-                        <p>Select equipment to upgrade</p>
-                    </div>
+                <div class="stat-item">
+                    <span>DEF:</span>
+                    <span id="stat-def">50</span>
                 </div>
-            </div>
-
-            <!-- Skills Tab -->
-            <div class="tab-pane" id="tab-skills">
-                <div class="skills-content">
-                    <div class="skills-list" id="skills-list">
-                        <!-- Skills generated by JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Shop Tab -->
-            <div class="tab-pane" id="tab-shop">
-                <div class="shop-content">
-                    <div class="shop-tabs">
-                        <button class="shop-tab active" data-shop="bp">BP Shop</button>
-                        <button class="shop-tab" data-shop="crystal">Crystal Shop</button>
-                        <button class="shop-tab" data-shop="point">Point Shop</button>
-                    </div>
-                    <div class="shop-items" id="shop-items">
-                        <!-- Shop items generated by JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- VIP Tab -->
-            <div class="tab-pane" id="tab-vip">
-                <div class="vip-content">
-                    <div class="vip-progress">
-                        <div class="vip-progress-bar">
-                            <div class="vip-progress-fill" id="vip-progress"></div>
-                        </div>
-                        <div class="vip-exp">VIP EXP: <span id="vip-exp">0</span>/<span id="vip-exp-max">100</span></div>
-                    </div>
-                    <div class="vip-benefits" id="vip-benefits">
-                        <!-- VIP benefits generated by JS -->
-                    </div>
+                <div class="stat-item">
+                    <span>Kills:</span>
+                    <span id="stat-kills">0</span>
                 </div>
             </div>
         </div>
