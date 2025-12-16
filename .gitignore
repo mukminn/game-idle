@@ -80,3 +80,4 @@ start.ps1
 # Exclude other project folders
 ca nft fees/
 
+.env*.local
