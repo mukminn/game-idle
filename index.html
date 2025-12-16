@@ -148,24 +148,43 @@
                 <!-- Battle Scene -->
                 <div class="battle-characters">
                     <div class="character hero-character">
-                        <div class="char-label">⚔️ Hero</div>
-                        <div class="char-visual">⚔️🛡️</div>
+                        <div class="char-label">⚔️ Valkyrie</div>
+                        <div class="char-visual" id="hero-visual">
+                            <div class="char-sprite">⚔️</div>
+                            <div class="attack-effect" id="hero-attack-effect"></div>
+                        </div>
                         <div class="char-hp-bar">
                             <div class="hp-fill hero-hp" id="hero-hp-fill"></div>
                             <span class="hp-text" id="hero-hp-text">346</span>
                         </div>
                         <div class="damage-number" id="hero-damage">108</div>
+                        <div class="particle-container" id="hero-particles"></div>
                     </div>
                     
                     <div class="character enemy-character">
                         <div class="char-label">👹 Enemy</div>
-                        <div class="char-visual">🐻</div>
+                        <div class="char-visual" id="enemy-visual">
+                            <div class="char-sprite">🐻</div>
+                            <div class="attack-effect" id="enemy-attack-effect"></div>
+                        </div>
                         <div class="char-hp-bar">
                             <div class="hp-fill enemy-hp" id="enemy-hp-fill"></div>
                             <span class="hp-text" id="enemy-hp-text">405</span>
                         </div>
                         <div class="damage-number large" id="enemy-damage">88</div>
                         <div class="enemy-label">1P</div>
+                        <div class="particle-container" id="enemy-particles"></div>
+                    </div>
+                </div>
+                
+                <!-- Reward Popup -->
+                <div class="reward-popup" id="reward-popup">
+                    <div class="reward-content">
+                        <div class="reward-icon">💰</div>
+                        <div class="reward-text">
+                            <div class="reward-amount" id="reward-gold">+0</div>
+                            <div class="reward-label">Gold</div>
+                        </div>
                     </div>
                 </div>
             </div>

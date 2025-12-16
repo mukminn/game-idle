@@ -500,9 +500,28 @@ body {
 .battle-background {
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 50%, #8B7355 100%);
+    background: linear-gradient(180deg, #4a90e2 0%, #87CEEB 30%, #DEB887 60%, #8B7355 100%);
     position: relative;
     min-height: 400px;
+    overflow: hidden;
+}
+
+.battle-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(255,255,255,0.1) 0%, transparent 50%);
+    animation: backgroundPulse 3s ease-in-out infinite;
+}
+
+@keyframes backgroundPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.8; }
 }
 
 .battle-characters {
@@ -523,8 +542,164 @@ body {
 }
 
 .char-visual {
+    position: relative;
     font-size: 60px;
     filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.char-sprite {
+    transition: transform 0.2s ease;
+}
+
+.character.attacking .char-sprite {
+    animation: attackAnimation 0.3s ease;
+}
+
+.character.hit .char-sprite {
+    animation: hitAnimation 0.3s ease;
+}
+
+@keyframes attackAnimation {
+    0% { transform: translateX(0) scale(1); }
+    50% { transform: translateX(20px) scale(1.1); }
+    100% { transform: translateX(0) scale(1); }
+}
+
+@keyframes hitAnimation {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+.attack-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,0,0.8) 0%, rgba(255,0,0,0.4) 50%, transparent 100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.attack-effect.active {
+    animation: attackEffect 0.4s ease-out;
+}
+
+@keyframes attackEffect {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(2);
+    }
+}
+
+.particle-container {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 200px;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.damage-particle {
+    position: absolute;
+    color: #ff4757;
+    font-weight: bold;
+    font-size: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    animation: particleFloat 1s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes particleFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0) translateX(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-80px) translateX(calc(-50px + 100px * var(--random-x))) scale(1.5);
+    }
+}
+
+/* Reward Popup */
+.reward-popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 500;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.reward-popup.show {
+    animation: rewardPopup 1.5s ease-out forwards;
+}
+
+@keyframes rewardPopup {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8) translateY(-30px);
+    }
+}
+
+.reward-content {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    padding: 20px 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 3px solid white;
+}
+
+.reward-icon {
+    font-size: 40px;
+    animation: bounce 0.5s ease infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.reward-text {
+    color: white;
+    text-align: center;
+}
+
+.reward-amount {
+    font-size: 32px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.reward-label {
+    font-size: 14px;
+    opacity: 0.9;
 }
 
 .hero-character .char-visual {

@@ -221,33 +221,96 @@ function performBattleTurn() {
     // Hero attacks enemy
     const heroAtk = gameState.hero.atk + gameState.equipment.weapon.atk;
     const damageToEnemy = Math.max(1, Math.floor(heroAtk * (0.8 + Math.random() * 0.4)) - gameState.enemy.def);
-    gameState.enemy.hp -= damageToEnemy;
     
-    showDamageNumber('enemy-damage', damageToEnemy);
+    // Attack animation
+    triggerAttackAnimation('hero');
+    setTimeout(() => {
+        gameState.enemy.hp -= damageToEnemy;
+        showDamageNumber('enemy-damage', damageToEnemy);
+        createDamageParticles('enemy-particles', damageToEnemy);
+        triggerHitAnimation('enemy');
+        
+        // Check if enemy is dead
+        if (gameState.enemy.hp <= 0) {
+            enemyDefeated();
+            return;
+        }
+        
+        // Enemy attacks hero (after delay)
+        setTimeout(() => {
+            const damageToHero = Math.max(1, Math.floor(gameState.enemy.atk * (0.8 + Math.random() * 0.4)) - 
+                (gameState.hero.def + 
+                 gameState.equipment.helmet.def + 
+                 gameState.equipment.chest.def + 
+                 gameState.equipment.shield.def));
+            
+            triggerAttackAnimation('enemy');
+            setTimeout(() => {
+                gameState.hero.hp -= damageToHero;
+                showDamageNumber('hero-damage', damageToHero);
+                createDamageParticles('hero-particles', damageToHero);
+                triggerHitAnimation('hero');
+                
+                // Check if hero is dead
+                if (gameState.hero.hp <= 0) {
+                    heroDefeated();
+                    return;
+                }
+                
+                updateUI();
+            }, 200);
+        }, 300);
+        
+        updateUI();
+    }, 200);
+}
+
+function triggerAttackAnimation(character) {
+    const charElement = document.querySelector(`.${character === 'hero' ? 'hero' : 'enemy'}-character`);
+    const effectElement = document.getElementById(`${character}-attack-effect`);
     
-    // Check if enemy is dead
-    if (gameState.enemy.hp <= 0) {
-        enemyDefeated();
-        return;
+    if (charElement) {
+        charElement.classList.add('attacking');
+        setTimeout(() => {
+            charElement.classList.remove('attacking');
+        }, 300);
     }
     
-    // Enemy attacks hero
-    const damageToHero = Math.max(1, Math.floor(gameState.enemy.atk * (0.8 + Math.random() * 0.4)) - 
-        (gameState.hero.def + 
-         gameState.equipment.helmet.def + 
-         gameState.equipment.chest.def + 
-         gameState.equipment.shield.def));
-    gameState.hero.hp -= damageToHero;
-    
-    showDamageNumber('hero-damage', damageToHero);
-    
-    // Check if hero is dead
-    if (gameState.hero.hp <= 0) {
-        heroDefeated();
-        return;
+    if (effectElement) {
+        effectElement.classList.add('active');
+        setTimeout(() => {
+            effectElement.classList.remove('active');
+        }, 400);
     }
+}
+
+function triggerHitAnimation(character) {
+    const charElement = document.querySelector(`.${character === 'hero' ? 'hero' : 'enemy'}-character`);
     
-    updateUI();
+    if (charElement) {
+        charElement.classList.add('hit');
+        setTimeout(() => {
+            charElement.classList.remove('hit');
+        }, 300);
+    }
+}
+
+function createDamageParticles(containerId, damage) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    const particle = document.createElement('div');
+    particle.className = 'damage-particle';
+    particle.textContent = `-${Math.floor(damage)}`;
+    particle.style.setProperty('--random-x', Math.random());
+    particle.style.left = '50%';
+    particle.style.top = '50%';
+    
+    container.appendChild(particle);
+    
+    setTimeout(() => {
+        particle.remove();
+    }, 1000);
 }
 
 function showDamageNumber(elementId, damage) {
@@ -272,6 +335,9 @@ function enemyDefeated() {
     gameState.totalBpEarned += goldReward;
     gameState.hero.exp += expReward;
     gameState.totalKills++;
+    
+    // Show reward popup
+    showRewardPopup(goldReward, expReward);
     
     // Show reward message
     if (gameState.totalKills % 5 === 0) {
@@ -299,10 +365,25 @@ function enemyDefeated() {
         generateProgressSquares();
     }
     
-    // Spawn new enemy
-    spawnNewEnemy();
+    // Spawn new enemy after delay
+    setTimeout(() => {
+        spawnNewEnemy();
+        updateUI();
+    }, 500);
+}
+
+function showRewardPopup(gold, exp) {
+    const popup = document.getElementById('reward-popup');
+    const goldAmount = document.getElementById('reward-gold');
     
-    updateUI();
+    if (popup && goldAmount) {
+        goldAmount.textContent = `+${formatNumber(gold)}`;
+        popup.classList.add('show');
+        
+        setTimeout(() => {
+            popup.classList.remove('show');
+        }, 1500);
+    }
 }
 
 function heroDefeated() {
